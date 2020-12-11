@@ -2,6 +2,15 @@
 
 An open source NES Emulator for Windows and Unix that features solid emulation accuracy and state of the art tools for power users. For some reason casual gamers use it too.
 
+## update
+
+20201211 for RG350 only
+
+1. rumbale
+2. hwx2 scanline
+3. hwx2 grid
+4. R2 for switch screen render type
+
 ## Builds and Releases
 
 win32 autobuilds @ https://ci.appveyor.com/project/zeromus/fceux/build/artifacts
