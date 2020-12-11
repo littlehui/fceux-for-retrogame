@@ -1,0 +1,10 @@
+RG350M FC模拟器
+
+版本特色：
+1. 支持震动。
+2. 支持双倍硬件拉升，横扫描滤镜，网格扫描滤镜。
+
+本版本基于司徒和soarqin修改的fcemux版本，感谢他们的付出。
+PS：滤镜功能，仅支持RG350M。
+
+https://github.com/littlehui/fceux-for-retrogame

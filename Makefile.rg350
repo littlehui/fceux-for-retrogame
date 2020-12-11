@@ -261,7 +261,7 @@ opk: $(TARGET).opk
 $(TARGET).opk: $(TARGET)
 	@echo Creating $@...
 	@mipsel-linux-strip bin/$(TARGET)
-	@mksquashfs $(TARGET) src/drivers/dingux-sdl/gui/*.bmp opk/fceux.png opk/default.gcw0.desktop $@ -all-root -no-xattrs -noappend -no-exports
+	@mksquashfs $(TARGET) src/drivers/dingux-sdl/gui/*.bmp opk/fceux.png opk/manual-cn.txt opk/default.gcw0.desktop $@ -all-root -no-xattrs -noappend -no-exports
 
 $(TARGET): $(OBJS)
 	@mkdir -p bin/

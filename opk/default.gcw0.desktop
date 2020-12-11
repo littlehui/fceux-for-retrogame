@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Fceux模拟器
 Comment=带震动，滤镜的FC模拟器
+X-OD-Manual=manual-cn.txt
 Exec=fceux %f
 Terminal=false
 Type=Application
