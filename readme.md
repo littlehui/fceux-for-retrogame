@@ -4,7 +4,7 @@ An open source NES Emulator for Windows and Unix that features solid emulation a
 
 ## update
 
-20201211 for RG350 only
+20201211 for RG350M only
 
 1. rumbale
 2. hwx2 scanline
