@@ -451,6 +451,7 @@ void FCEUGUI_Run() {
 
 	// Must update emulation core and drivers
 	UpdateEMUCore(g_config);
+	UpdateInputConfig(g_config);
 	FCEUD_DriverReset();
 
 	// Clear screen

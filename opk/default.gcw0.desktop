@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Fceux模拟器
+Comment=带震动，滤镜的FC模拟器
+Exec=fceux %f
+Terminal=false
+Type=Application
+MimeType=application/zip;application/x-nes-rom;
+StartupNotify=true
+Icon=fceux
+Categories=emulators;

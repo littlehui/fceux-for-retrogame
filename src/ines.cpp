@@ -833,6 +833,29 @@ int iNESLoad(const char *name, FCEUFILE *fp, int OverwriteVidMode) {
 		for(x=0;x<16;x++)
 			FCEU_printf("%02x",iNESCart.MD5[x]);
 		FCEU_printf("\n");
+    extern int hack_index;
+    extern struct _hack hack[];
+    char temp[8], buf[40]={0};
+    for(x=0; x<16; x++){
+      sprintf(temp, "%02x", iNESCart.MD5[x]);
+      strcat(buf, temp);
+    }
+    hack_index = -1;
+    for(x=0; ; x++){
+      if(hack[x].name == NULL){
+        break;
+      }
+      if(strcmp(buf, hack[x].hash) == 0){
+        hack_index = x;
+        break;
+      }
+    }
+    if(hack_index >= 0){
+      printf(" Supported hack rom: %d\n", hack_index);
+    }
+    else{
+      printf(" Unsupported hack rom\n");
+    }
 	}
 
 	char* mappername = "Not Listed";

@@ -225,7 +225,7 @@ INCLUDEDIR=$(TOOLCHAIN)/include
 CFLAGS = -I$(INCLUDEDIR) -I$(SRC)
 CXXFLAGS = -I$(INCLUDEDIR) -std=gnu++0x
 
-LDFLAGS = -s
+LDFLAGS = -s -lshake
 
 W_OPTS= -Wno-write-strings -Wno-sign-compare
 

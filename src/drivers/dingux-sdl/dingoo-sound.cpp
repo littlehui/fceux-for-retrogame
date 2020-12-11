@@ -175,6 +175,9 @@ void WriteSound(int32 *buf, int Count)
 {
     //extern int EmulationPaused;
 
+    if (NoWaiting) {
+        Count /= (1 + NoWaiting);
+    }
     SDL_LockAudio();
 
     /*if (EmulationPaused == 0)*/ { // for some reason EmulationPaused is always 1, ignore it

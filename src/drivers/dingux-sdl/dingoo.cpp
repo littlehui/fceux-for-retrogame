@@ -10,8 +10,12 @@
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
+#include <fcntl.h>
 #include <limits.h>
 #include <math.h>
+#ifndef PC_DEBUG
+  #include <shake.h>
+#endif
 
 #include "main.h"
 #include "throttle.h"
@@ -232,6 +236,9 @@ int LoadGame(const char *path) {
 	// Show or not to show fps, that is the cuestion ...
 	g_config->getOption("SDL.ShowFPS", &showfps);
 	g_config->getOption("SDL.FPSThrottle", &fpsthrottle);
+
+	// Update configs for input system
+	UpdateInputConfig(g_config);
 
 	isloaded = 1;
 
@@ -527,6 +534,60 @@ int FCEUD_LoadMovie(const char *name, char *romname) {
 	return 1;
 }
 
+#ifndef PC_DEBUG
+static int id=0;
+static Shake_Device *device=NULL;
+static void shake_init(void)
+{
+  Shake_Effect effect;
+
+  Shake_Init();
+  if(Shake_NumOfDevices() > 0){ 
+    device = Shake_Open(0);
+    Shake_InitEffect(&effect, SHAKE_EFFECT_PERIODIC);
+    effect.u.periodic.waveform = SHAKE_PERIODIC_TRIANGLE;
+    effect.u.periodic.period = 0.1*0x100; // 0.1*0x100
+    effect.u.periodic.magnitude = 0x8000; // 0x6000
+    effect.u.periodic.envelope.attackLength = 0; // 0x100
+    effect.u.periodic.envelope.attackLevel = 0;
+    effect.u.periodic.envelope.fadeLength = 0; // 0x100
+    effect.u.periodic.envelope.fadeLevel = 0;
+    effect.direction = 0x4000;
+    effect.length = 200; // 2000
+    effect.delay = 0;
+    id = Shake_UploadEffect(device, &effect);
+    //init not shake
+    //Shake_Play(device, id);
+  }
+}
+
+void shake_it(void)
+{
+  if(device){
+    Shake_Play(device, id);
+  }
+}
+
+static void shake_deinit(void)
+{
+  Shake_EraseEffect(device, id);
+  Shake_Close(device);
+  Shake_Quit();
+}
+#endif
+
+int hack_index=-1;
+struct _hack hack[] = {
+  {"Ninja Ryukenden III(JP)",     "235e08c24589cc0d2634b20c7d3b860b", {0xa084, 0xde, 0xa2fa, 0xfd, 0xa0b9, 0xa4}},
+  {"Ninja Ryukenden III(CN)",     "8eda98fb5c7da375b4889b257013afab", {0xa084, 0xde, 0xa2fa, 0xfd, 0xa0b9, 0xa4}},
+  {"Ninja Ryukenden III(HACK)",   "2cf54ba46165c81e966935d08c25fc0f", {0xa084, 0xde, 0xa2fa, 0xfd, 0xa0b9, 0xa4}},
+  {"Mighty Final Fight(US)",      "be4670792b17c74eecf3a0e7f37ecfe2", {0x86e8, 0xe5, 0xf927, 0x38, 0x0000, 0x00}},
+  {"Mighty Final Fight(CN)",      "692106e345c3d1dd6e7f9d6e346aecb1", {0x86e8, 0xe5, 0xf927, 0x38, 0x0000, 0x00}},
+  {"1943(US)",                    "190d10a3685f87ba32135ac595283f36", {0x85e5, 0x20, 0x0000, 0x00, 0x0000, 0x00}},
+  {NULL, NULL, {0, 0, 0}}
+};
+
+
 /**
  * The main loop for the SDL.
  */
@@ -537,6 +598,9 @@ int main(int argc, char *argv[]) {
 
 	int error;
 
+#ifndef PC_DEBUG
+  shake_init();
+#endif
 	FCEUD_Message("\nStarting " FCEU_NAME_AND_VERSION "...\n");
 
 #ifdef WIN32
@@ -767,8 +831,9 @@ int main(int argc, char *argv[]) {
 		}
 
 		// Is this a movie?
-		if (!(error = FCEUD_LoadMovie(filename, romname)))
+		if (!(error = FCEUD_LoadMovie(filename, romname))) {
 			error = LoadGame(filename);
+    }
 
 		if (error != 1) {
 			DriverKill();
@@ -814,6 +879,9 @@ int main(int argc, char *argv[]) {
 	CloseGame();
 
 	// exit the infrastructure
+#ifndef PC_DEBUG
+  shake_deinit();
+#endif
 	FCEUI_Kill();
 	SDL_Quit();
 	return 0;

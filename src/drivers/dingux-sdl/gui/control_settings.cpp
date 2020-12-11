@@ -1,7 +1,7 @@
 // Externals
 extern Config *g_config;
 
-#define CONTROL_MENUSIZE 7
+#define CONTROL_MENUSIZE 8
 
 /* MENU COMMANDS */
 
@@ -66,6 +66,18 @@ static void setAnalogStick(unsigned long key)
 	g_config->setOption("SDL.AnalogStick", val);
 }
 
+static void setAutoFirePattern(unsigned long key)
+{
+	int val;
+
+	if (key == DINGOO_RIGHT && val < 2)
+		++val;
+	if (key == DINGOO_LEFT && val > 0)
+		--val;
+
+	g_config->setOption("SDL.AutoFirePattern", val);
+}
+
 static void resetMappings(unsigned long key)
 {
 	g_config->setOption("SDL.Input.GamePad.0A", DefaultGamePad[0][0]);
@@ -74,6 +86,7 @@ static void resetMappings(unsigned long key)
 	g_config->setOption("SDL.Input.GamePad.0TurboB", DefaultGamePad[0][9]);
 	g_config->setOption("SDL.MergeControls", 0);
 	g_config->setOption("SDL.AnalogStick", 0);
+	g_config->setOption("SDL.AutoFirePattern", 0);
 	UpdateInput(g_config);
 }
 /* CONTROL SETTING MENU */
@@ -86,6 +99,7 @@ static SettingEntry cm_menu[] =
 	{"Turbo A", "Map input for Turbo A", "SDL.Input.GamePad.0TurboA", setTurboA},
 	{"Merge P1/P2", "Control both players at once", "SDL.MergeControls", MergeControls},
 	{"Analog Stick", "Analog Stick for Directions", "SDL.AnalogStick", setAnalogStick},
+	{"Auto-fire Pattern", "Set auto-fire pattern", "SDL.AutoFirePattern", setAutoFirePattern},
 	{"Reset defaults", "Reset default control mappings", "", resetMappings},
 };
 
@@ -160,13 +174,13 @@ int RunControlSettings()
 			}
 
 	   		if (parsekey(DINGOO_LEFT, 1)) {
-				if (index == 4 || index == 5) {
+				if (index >= 4 && index <= 6) {
 					cm_menu[index].update(g_key);
 				}
 			}
 
 	   		if (parsekey(DINGOO_RIGHT, 1)) {
-				if (index == 4 || index == 5) {
+				if (index >= 4 && index <= 6) {
 					cm_menu[index].update(g_key);
 				}
 			}
@@ -213,14 +227,21 @@ int RunControlSettings()
 				g_config->getOption(cm_menu[i].option, &iBtnVal);
 				
 				if (i == CONTROL_MENUSIZE-1)
-					sprintf(cBtn, "%s", "");
+					cBtn[0] = 0;
 				else if (i == CONTROL_MENUSIZE-2)
 				{
-					int mergeValue;
-					g_config->getOption("SDL.AnalogStick", &mergeValue);
-					sprintf(cBtn, "%s", mergeValue ? "on" : "off");
+					int value;
+					const char *autofire_text[3] = {"1 on/1 off", "2 on/2 off", "1 on/3 off"};
+					g_config->getOption("SDL.AutoFirePattern", &value);
+					sprintf(cBtn, "%s", autofire_text[value]);
 				}
 				else if (i == CONTROL_MENUSIZE-3)
+				{
+					int value;
+					g_config->getOption("SDL.AnalogStick", &value);
+					sprintf(cBtn, "%s", value ? "on" : "off");
+				}
+				else if (i == CONTROL_MENUSIZE-4)
 				{
 					int mergeValue;
 					g_config->getOption("SDL.MergeControls", &mergeValue);

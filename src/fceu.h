@@ -3,6 +3,15 @@
 
 #include "types.h"
 
+struct _hit {
+  unsigned int addr;
+  unsigned char opcode;
+};
+struct _hack {
+  char *name;
+  char *hash;
+  struct _hit hit[3];
+};
 extern int fceuindbg;
 extern int newppu;
 void ResetGameLoaded(void);

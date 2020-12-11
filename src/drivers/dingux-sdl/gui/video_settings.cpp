@@ -5,12 +5,15 @@ extern Config *g_config;
 /* MENU COMMANDS */
 
 // Fullscreen mode
-static char *scale_tag[] = {
+extern char *scale_tag[] = {
 		"Original",
 		"Hardware",
 		"Aspect",
 		"FS Fast",
-		"FS Smooth"
+		"FS Smooth",
+        "Hardware X2",
+        "HWX2 CRT",
+        "HWX2 FS GRID"
 };
 
 static void fullscreen_update(unsigned long key)
@@ -18,7 +21,7 @@ static void fullscreen_update(unsigned long key)
 	int val;
 	g_config->getOption("SDL.Fullscreen", &val);
 
-	if (key == DINGOO_RIGHT) val = val < 4 ? val+1 : 4;
+	if (key == DINGOO_RIGHT) val = val < 7 ? val+1 : 7;
 	if (key == DINGOO_LEFT) val = val > 0 ? val-1 : 0;
    
 	g_config->setOption("SDL.Fullscreen", val);

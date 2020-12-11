@@ -611,6 +611,29 @@ int UNIFLoad(const char *name, FCEUFILE *fp) {
 			FCEU_printf("%02x", UNIFCart.MD5[x]);
 		FCEU_printf("\n");
 		memcpy(&GameInfo->MD5, &UNIFCart.MD5, sizeof(UNIFCart.MD5));
+    extern int hack_index;
+    extern struct _hack hack[];
+    char temp[8], buf[40]={0};
+    for(x=0; x<16; x++){
+      sprintf(temp, "%02x", UNIFCart.MD5[x]);
+      strcat(buf, temp);
+    }
+    hack_index = -1;
+    for(x=0; ; x++){
+      if(hack[x].name == NULL){
+        break;
+      }
+      if(strcmp(buf, hack[x].hash) == 0){
+        hack_index = x;
+        break;
+      }
+    }
+    if(hack_index >= 0){
+      printf(" Supported hack rom !\n");
+    }
+    else{
+      printf(" Unsupported hack rom !\n");
+    }
 	}
 
 	if (!InitializeBoard())

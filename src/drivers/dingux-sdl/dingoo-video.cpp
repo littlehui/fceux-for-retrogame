@@ -86,6 +86,11 @@ static struct Color s_cpsdl[256];
 #  define DINGOO_MULTIBUF SDL_DOUBLEBUF
 #endif
 
+#define cR(A) (((A) & 0xf800) >> 8)
+#define cG(A) (((A) & 0x7e0) >> 3)
+#define cB(A) (((A) & 0x1f) << 3)
+#define Weight2_1(A, B)  ((((cR(A) + cR(A) + cR(B)) / 3) & 0xf8) << 8 | (((cG(A) + cG(A) + cG(B)) / 3) & 0xfc) << 3 | (((cB(A) + cB(A) + cB(B)) / 3) & 0xf8) >> 3)
+
 /**
  * Attempts to destroy the graphical video display.  Returns 0 on
  * success, -1 on failure.
@@ -161,7 +166,17 @@ int InitVideo(FCEUGI *gi) {
 		int w, h;
 		if (s_fullscreen == 1) {
 			w = 256; h = PAL ? 240 : 224;
-		} else {
+		} else if (s_fullscreen == 5) {
+		    // hw X2 ,Hx2 scanlline grid
+            w = 256 << 1; h = 224 << 1;
+/*            FILE* aspect_ratio_file = fopen("/sys/devices/platform/jz-lcd.0/keep_aspect_ratio", "w");
+            fwrite("0", 1, 1, aspect_ratio_file);
+            fclose(aspect_ratio_file);*/
+        } else if (s_fullscreen == 6) {
+            w = 256 << 1; h = 240<<1;
+        } else if (s_fullscreen == 7) {
+            w = 256 << 1; h = 240<<1;
+        } else {
 			w = 320; h = 240;
 		}
 		if(SDL_VideoModeOK(w, h, 16, SDL_HWSURFACE | DINGOO_MULTIBUF) != 0)
@@ -290,6 +305,22 @@ void UnlockConsole() {
 
 #define READU16(x)  (uint16) ((uint16)(x)[0] | (uint16)(x)[1] << 8) 
 
+#define bgr555_to_native_16(px) (px)
+
+uint16_t hexcolor_to_rgb565(const uint32_t color)
+{
+    uint8_t colorr = ((color >> 16) & 0xFF);
+    uint8_t colorg = ((color >> 8) & 0xFF);
+    uint8_t colorb = ((color) & 0xFF);
+
+    uint16_t r = ((colorr >> 3) & 0x1f) << 11;
+    uint16_t g = ((colorg >> 2) & 0x3f) << 5;
+    uint16_t b = (colorb >> 3) & 0x1f;
+
+    return (uint16_t) (r | g | b);
+}
+
+
 /**
  * Pushes the given buffer of bits to the screen.
  */
@@ -369,6 +400,99 @@ void BlitScreen(uint8 *XBuf) {
 					dest += screen->w - 280;
 				}
 		}
+	} else if  (s_fullscreen == 5) {
+        //TODO littlehui hw X2
+        pBuf += (s_srendline + 8) * 256;
+        int16 pinc = (screen->w) >> 1;
+        int16 append = 256;
+        //int32 pinc = (screen->w - NWIDTH) >> 1;
+        //int32 append = 256 - NWIDTH;
+        register uint16 *dest = (uint16 *) screen->pixels;
+        //dest += ((screen->w/2 * s_srendline) + pinc / 2 + ((screen->h - 240) / 4) * screen->w) / 8;
+
+        //dest += + 320 * 2 * 2 * 8;
+
+        for (y = 224; y; y--) {
+            for (x = 256; x; x -= 1) {
+                register uint16 ab;
+                __builtin_prefetch(dest + 2, 1);
+                ab = s_psdl[*pBuf];
+                *(uint16_t*)(dest) = ab;
+                *(uint16_t*)(dest + 1) = ab;
+                //next row
+                *(uint16_t*)(dest + pinc * 2) = ab;
+                *(uint16_t*)(dest + pinc * 2 + 1) = ab;
+                pBuf += 1;
+                dest += 2;
+            }
+            //pBuf += append;
+            dest += pinc * 2;
+        }
+	}  else if (s_fullscreen == 6) {
+	  //TODO littlehui X2 crt
+        //upscale_512x448_scanline((uint32 *)screen->pixels, (uint8 *)XBuf + 256 * 8);
+        //pBuf += 256;
+        int16 pinc = (screen->w) >> 1;
+        //int16 append = 256;
+        uint16_t gcolor = hexcolor_to_rgb565(0x000000);
+        register uint16 *dest = (uint16 *) screen->pixels + 320 * 2 * 2 * 8;
+        //dest += 64;
+        for (y = 224; y; y--) {
+            for (x = 256; x; x -= 1) {
+                register uint16 ab;
+                __builtin_prefetch(dest + 2, 1);
+                ab = s_psdl[*pBuf];
+                *(uint16_t*)(dest) = ab;
+                *(uint16_t*)(dest + 1) = ab;
+
+                uint16_t scanline_color = Weight2_1( ab, gcolor);
+
+                *(uint16_t*)(dest + pinc * 2) = scanline_color;
+                *(uint16_t*)(dest + pinc * 2 + 1) = scanline_color;
+
+                pBuf += 1;
+                dest += 2;
+            }
+            //dest += 128;
+            //pBuf += append;
+            dest += pinc * 2;
+        }
+	} else if (s_fullscreen == 7) {
+
+        //TODO littlehui X2 grid full screen
+        //upscale_512x448_scanline((uint32 *)screen->pixels, (uint8 *)XBuf + 256 * 8);
+        pBuf += 256;
+        int16 pinc = (screen->w) >> 1;
+        int16 append = 256;
+        uint16_t gcolor = hexcolor_to_rgb565(0x000000);
+        register uint16 *dest = (uint16 *) screen->pixels + 320 * 2 * 2 * 8;
+        for (y = 224; y; y--) {
+            for (x = 256; x; x -= 1) {
+                register uint16 ab;
+                __builtin_prefetch(dest + 2, 1);
+                ab = s_psdl[*pBuf];
+                *(uint16_t*)(dest) = ab;
+
+                //next row scanline
+                /* Get raw scanline colour (raw colour * 0.75)
+                * > First pass: 50:50 mix of color:0 */
+                //uint16_t scanline_color = (ab + (ab & 0x7474)) >> 1;
+                /* > Second pass: 50:50 mix of color:(color:0)
+                 *   => Gives ((1 + 0.5) / 2) = 0.75 */
+                //scanline_color = (ab + scanline_color + ((ab ^ scanline_color) & 0x421)) >> 1;
+
+                uint16_t scanline_color = Weight2_1( ab, gcolor);
+
+                *(uint16_t*)(dest + 1) = scanline_color;
+                *(uint16_t*)(dest + pinc * 2) = scanline_color;
+                *(uint16_t*)(dest + pinc * 2 + 1) = scanline_color;
+
+                pBuf += 1;
+                dest += 2;
+            }
+            //pBuf += append;
+            dest += pinc * 2;
+        }
 	} else { // native res
 		//int pinc = (320 - NWIDTH) >> 1;
 		int32 pinc = (screen->w - NWIDTH) >> 1;

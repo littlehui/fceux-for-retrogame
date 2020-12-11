@@ -190,6 +190,7 @@ Config * InitConfig() {
 	config->addOption("input4", "SDL.Input.3", "Gamepad.3");
 	config->addOption("mergecontrols", "SDL.MergeControls", 0);
 	config->addOption("analogstick", "SDL.AnalogStick", 0);
+	config->addOption("autofirepattern", "SDL.AutoFirePattern", 0);
 
 	// allow for input configuration
 	// NOT SUPPORTED
@@ -314,30 +315,31 @@ Config * InitConfig() {
 	// Will use R + Button combo for hotkeys on dingoo
 	// So only 11 hotkeys available
 	// L trigger will be saved for GUI
-	const int Hotkeys[HK_MAX] = { -1, // cheat menu
+	const int Hotkeys[HK_MAX] = {
+			-1, // cheat menu
 			-1, // bind state
 			-1, // load lua
 			-1, // toggleBG
-			0, // save state
-			2, // fds flip disk
+			-1, // save state
+			-1, // fds flip disk
 			-1, // fds select
-			1, // load state
+			-1, // load state
 			-1, // fds eject
-			5, // VS insert coin
+			-1, // VS insert coin
 			-1, // VS toggle dipswitch
-			6, // toggle frame display
-			27, // toggle subtitle
+			-1, // toggle frame display
+			-1, // toggle subtitle
 			-1, // reset
-			17, // screenshot
-			16, // pause
+			-1, // screenshot
+			-1, // pause
 			-1, // speed++
 			-1, // speed--
-			18, //frame advance
+			-1, // frame advance
 			-1, // turbo
 			-1, // toggle input display
 			-1, // toggle movie RW
 			-1, // toggle mute capture
-			29, // quit
+			-1, // quit
 			-1, // frame advance lag skip
 			-1, // lag counter display
 			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1 };

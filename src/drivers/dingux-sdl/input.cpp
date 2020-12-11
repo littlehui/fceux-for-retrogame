@@ -45,8 +45,9 @@
 #endif
 
 /** GLOBALS **/
-int NoWaiting = 1;
+int NoWaiting = 0;
 extern Config *g_config;
+extern char *scale_tag[];
 extern bool bindSavestate, frameAdvanceLagSkip, lagCounterDisplay;
 
 /* UsrInputType[] is user-specified.  InputType[] is current
@@ -64,7 +65,9 @@ static int frameAdvanceKey = 0;
 
 static unsigned short analog1 = 0;
 
-#define joy_commit_range    3276
+static int merge_controls = 0, use_analog = 0, autofire_pattern = 0;
+
+#define joy_commit_range 3276
 enum
 {
 	ANALOG_UP = 1,
@@ -150,28 +153,26 @@ static int _keyonly(int a)
 	if(a > SDLK_LAST+1 || a < 0)
 		return(0);
 	#if SDL_VERSION_ATLEAST(1, 3, 0)
-    if(g_keyState[SDL_GetScancodeFromKey((SDLKey)a)])
-    #else
-    if(g_keyState[a])
-    #endif
-    {
+	if(g_keyState[SDL_GetScancodeFromKey((SDLKey)a)])
+	#else
+	if(g_keyState[a])
+	#endif
+	{
 	
-        if(!keyonce[a]) {
-            keyonce[a] = 1;
-            return(1);
-        }
-    } else {
-        keyonce[a] = 0;
-    }
-    return(0);
+		if(!keyonce[a]) {
+			keyonce[a] = 1;
+			return(1);
+		}
+	} else {
+		keyonce[a] = 0;
+	}
+	return(0);
 }
 
 // a hack to check DINGOO_R hotkey combo
 static int ispressed(int sdlk_code)
 {
-	Uint8 *keystate = SDL_GetKeyState(NULL);
-
-	if(keystate[sdlk_code]) return 1;
+	if(g_keyState[sdlk_code]) return 1;
 
 	return 0;
 }
@@ -181,6 +182,7 @@ static int resetkey(int sdlk_code)
 {
 	Uint8 *keystate = SDL_GetKeyState(NULL);
 	keystate[sdlk_code] = 0;
+	g_keyState[sdlk_code] = 0;
 }
 
 static int g_fkbEnabled = 0;
@@ -245,7 +247,7 @@ void FCEUD_LoadStateFrom() {
 /**
 * Hook for transformer board
 */
-unsigned int *GetKeyboard(void)                                                     
+unsigned int *GetKeyboard(void)
 {
   int size = 256;
   Uint8* keystate = SDL_GetKeyState(&size);
@@ -256,29 +258,14 @@ unsigned int *GetKeyboard(void)
  * Parse hotkey commands and execute accordingly.
  */
 static void KeyboardCommands() {
-    int is_shift, is_alt;
+	int is_shift, is_alt;
 
-    // get the keyboard input
-    #if SDL_VERSION_ATLEAST(1, 3, 0)	 
-    g_keyState = SDL_GetKeyboardState(NULL);	 
-    #else
-    g_keyState = SDL_GetKeyState(NULL);
+	// get the keyboard input
+	#if SDL_VERSION_ATLEAST(1, 3, 0)	 
+	g_keyState = SDL_GetKeyboardState(NULL);	 
+	#else
+	g_keyState = SDL_GetKeyState(NULL);
 	#endif
-
-	/* NOT SUPPORTED
-	 // check if the family keyboard is enabled
-    if(InputType[2] == SIFC_FKB) {
-        if(keyonly(SCROLLLOCK)) {
-            g_fkbEnabled ^= 1;
-            FCEUI_DispMessage("Family Keyboard %sabled.", 0,
-                              g_fkbEnabled ? "en" : "dis");
-        }
-        SDL_WM_GrabInput(g_fkbEnabled ? SDL_GRAB_ON : SDL_GRAB_OFF);
-        if(g_fkbEnabled) {
-            return;
-        }
-    }
-	 }*/
 
 	#if SDL_VERSION_ATLEAST(1, 3, 0)
 	if(g_keyState[SDL_GetScancodeFromKey(SDLK_LSHIFT)] || g_keyState[SDL_GetScancodeFromKey(SDLK_RSHIFT)])
@@ -310,7 +297,7 @@ static void KeyboardCommands() {
 
 	// Power flick (SDLK_HOME) to enter GUI
 	if (_keyonly(DINGOO_L2)
-        || MenuRequested) {
+		|| MenuRequested) {
 		SilenceSound(1);
 		FCEUGUI_Run();
 		SilenceSound(0);
@@ -318,12 +305,59 @@ static void KeyboardCommands() {
 		MenuRequested = false;
 		return;
 	}
+    extern int g_slot; // import from gui.cpp
+    // L3 Save state
+    if (_keyonly(DINGOO_L3)) {
+        FCEUI_SelectState(g_slot, 0);
+        FCEUI_SaveState(NULL);
+        resetkey(DINGOO_B);
+    }
 
+    // R3 Load state
+    if (_keyonly(DINGOO_R3)) {
+        FCEUI_SelectState(g_slot, 0);
+        FCEUI_LoadState(NULL);
+        resetkey(DINGOO_B);
+    }
+
+    //R2 change HW full screen
+    if(_keyonly(DINGOO_R2)) { // R + X  toggle fullscreen
+        extern int s_fullscreen; // from dingoo_video.cpp
+        //0 1 5 6 7 hw,hwx2,scanline, scanline grid
+        s_fullscreen = (s_fullscreen + 1) % 8;
+        if (s_fullscreen == 2 || s_fullscreen == 3 || s_fullscreen == 4) {
+            s_fullscreen = 5;
+        }
+        g_config->setOption("SDL.Fullscreen", s_fullscreen);
+        FCEUD_DriverReset();
+        dingoo_clear_video();
+        FCEU_DispMessage("%s", 0, scale_tag[s_fullscreen]);
+        resetkey(DINGOO_X);
+    }
+    //select + start
+/*    if(ispressed(DINGOO_SELECT)) {
+        if(_keyonly(DINGOO_START)) {
+            //quit game
+            //while(gtk_events_pending())
+            //   gtk_main_iteration_do(FALSE);
+            // this is not neccesary to be explicitly called
+            // it raises a GTK-Critical when its called
+            //gtk_main_quit();
+            FCEUI_CloseGame();
+            FCEUI_Kill();
+            // LoadGame() checks for an IP and if it finds one begins a network session
+            // clear the NetworkIP field so this doesn't happen unintentionally
+            g_config->setOption("SDL.NetworkIP", "");
+            g_config->save();
+            SDL_Quit();
+            exit(0);
+        }
+    }*/
 	// R shift + combokeys
 	if(ispressed(DINGOO_R)) {
-		extern int g_slot; // import from gui.cpp
+
 		void save_preview(); // import from gui.cpp
-		if(_keyonly(DINGOO_A)) { // R + A  save state
+/*		if(_keyonly(DINGOO_A)) { // R + A  save state
 			FCEUI_SelectState(g_slot, 0);
 			FCEUI_SaveState(NULL);
 			save_preview();
@@ -333,19 +367,20 @@ static void KeyboardCommands() {
 			FCEUI_SelectState(g_slot, 0);
 			FCEUI_LoadState(NULL);
 			resetkey(DINGOO_B);
-		}
-		if(_keyonly(DINGOO_X)) { // R + X  toggle fullscreen
+		}*/
+/*		if(_keyonly(DINGOO_X)) { // R + X  toggle fullscreen
 			extern int s_fullscreen; // from dingoo_video.cpp
-			s_fullscreen = (s_fullscreen + 1) % 5;
+			s_fullscreen = (s_fullscreen + 1) % 8;
 			g_config->setOption("SDL.Fullscreen", s_fullscreen);
 			FCEUD_DriverReset();
 			dingoo_clear_video();
-			resetkey(DINGOO_X);
+            FCEU_DispMessage("%s", 0, scale_tag[s_fullscreen]);
+            resetkey(DINGOO_X);
 		}
 		if(_keyonly(DINGOO_Y)) { // R + Y  flip fds disk
 			if(gametype == GIT_FDS) FCEUI_FDSFlip();
 			resetkey(DINGOO_Y);
-		}
+		}*/
 		if(_keyonly(DINGOO_UP)) { // R + UP tooggle fps show
 			extern int showfps; // from dingoo.cpp
 			showfps ^= 1;
@@ -460,9 +495,9 @@ static void KeyboardCommands() {
 		FCEUI_ToggleEmulationPause();
 
 	// Toggle throttling
-	NoWaiting &= ~1;
-	//if (dingoo_key & 1 << Hotkeys[HK_TURBO])
-	//	NoWaiting |= 1;
+	if (_keyonly(DINGOO_L)) {
+        FCEUD_TurboToggle();
+    }
 /*
 	static bool frameAdvancing = false;
 	if ((dingoo_key & frameAdvanceKey) == frameAdvanceKey) {
@@ -561,51 +596,6 @@ static void KeyboardCommands() {
 			FCEUI_NTSCDEC();
 		if (_keyonly(Hotkeys[HK_INCREASE_SPEED]))
 			FCEUI_NTSCINC();
-
-		/* NOT SUPPORTED 
-		 if((InputType[2] == SIFC_BWORLD) || (cspec == SIS_DATACH)) {
-		 if(keyonly(F8)) {
-		 barcoder ^= 1;
-		 if(!barcoder) {
-		 if(InputType[2] == SIFC_BWORLD) {
-		 strcpy((char *)&BWorldData[1], (char *)bbuf);
-		 BWorldData[0] = 1;
-		 } else {
-		 FCEUI_GetDatachSet(bbuf);
-		 }
-		 FCEUI_DispMessage("Barcode Entered", 0);
-		 } else {
-		 bbuft = 0;
-		 FCEUI_DispMessage("Enter Barcode", 0);
-		 }
-		 }
-		 } else {
-		 barcoder = 0;
-		 }
-
-		 #define SSM(x)                                    \
-		do {                                              \
-		    if(barcoder) {                                \
-			if(bbuft < 13) {                          \
-			    bbuf[bbuft++] = '0' + x;              \
-			    bbuf[bbuft] = 0;                      \
-			}                                         \
-			FCEUI_DispMessage("Barcode: %s", 0, bbuf);   \
-			}                                             \
-		} while(0)
-
-		 DIPSless:
-		 if(keyonly(0)) SSM(0);
-		 if(keyonly(1)) SSM(1);
-		 if(keyonly(2)) SSM(2);
-		 if(keyonly(3)) SSM(3);
-		 if(keyonly(4)) SSM(4);
-		 if(keyonly(5)) SSM(5);
-		 if(keyonly(6)) SSM(6);
-		 if(keyonly(7)) SSM(7);
-		 if(keyonly(8)) SSM(8);
-		 if(keyonly(9)) SSM(9);
-		 #undef SSM */
 	}
 }
 
@@ -616,28 +606,28 @@ static void KeyboardCommands() {
 void // removed static for a call in lua-engine.cpp
 GetMouseData(uint32(&d)[3])
 {
-    int x,y;
-    uint32 t;
+	int x,y;
+	uint32 t;
 
-    // Don't get input when a movie is playing back
-    if(FCEUMOV_Mode(MOVIEMODE_PLAY))
-        return;
+	// Don't get input when a movie is playing back
+	if(FCEUMOV_Mode(MOVIEMODE_PLAY))
+		return;
 
-    // retrieve the state of the mouse from SDL
-    t = SDL_GetMouseState(&x, &y);
+	// retrieve the state of the mouse from SDL
+	t = SDL_GetMouseState(&x, &y);
 
-    d[2] = 0;
-    if(t & SDL_BUTTON(1)) {
-        d[2] |= 0x1;
-    }
-    if(t & SDL_BUTTON(3)) {
-        d[2] |= 0x2;
-    }
+	d[2] = 0;
+	if(t & SDL_BUTTON(1)) {
+		d[2] |= 0x1;
+	}
+	if(t & SDL_BUTTON(3)) {
+		d[2] |= 0x2;
+	}
 
-    // get the mouse position from the SDL video driver
-    t = PtoV(x, y);
-    d[0] = t & 0xFFFF;
-    d[1] = (t >> 16) & 0xFFFF;
+	// get the mouse position from the SDL video driver
+	t = PtoV(x, y);
+	d[0] = t & 0xFFFF;
+	d[1] = (t >> 16) & 0xFFFF;
 }
 
 /**
@@ -645,90 +635,90 @@ GetMouseData(uint32(&d)[3])
  */
 static void UpdatePhysicalInput()
 {
-    SDL_Event event;
+	SDL_Event event;
 
-    // loop, handling all pending events
-    while(SDL_PollEvent(&event)) {
-        switch(event.type) {
-        case SDL_QUIT:
-            CloseGame();
-            puts("Quit");
-            break;
-        case SDL_FCEU_HOTKEY_EVENT:
-            switch(event.user.code) {
-                case HK_PAUSE:
-                    FCEUI_ToggleEmulationPause();
-                    break;
-                default:
-                    FCEU_printf("Warning: unknown hotkey event %d\n", event.user.code);
-            }
-            break;
-        case SDL_KEYDOWN:
-            if (event.key.keysym.sym == DINGOO_MENU)
-                // Because a KEYUP is sent straight after the KEYDOWN for the
-                // Power switch, SDL_GetKeyState will not ever see this.
-                // Keep a record of it.
-                MenuRequested = true;
-            break;
+	// loop, handling all pending events
+	while(SDL_PollEvent(&event)) {
+		switch(event.type) {
+		case SDL_QUIT:
+			CloseGame();
+			puts("Quit");
+			break;
+		case SDL_FCEU_HOTKEY_EVENT:
+			switch(event.user.code) {
+				case HK_PAUSE:
+					FCEUI_ToggleEmulationPause();
+					break;
+				default:
+					FCEU_printf("Warning: unknown hotkey event %d\n", event.user.code);
+			}
+			break;
+		case SDL_KEYDOWN:
+			if (event.key.keysym.sym == DINGOO_MENU)
+				// Because a KEYUP is sent straight after the KEYDOWN for the
+				// Power switch, SDL_GetKeyState will not ever see this.
+				// Keep a record of it.
+				MenuRequested = true;
+			break;
 		case SDL_JOYAXISMOTION:
-        {
-            int axisval = event.jaxis.value;
-            if (event.jaxis.axis == 0)
-            {// X axis
-                analog1 &= ~(ANALOG_LEFT | ANALOG_RIGHT);
-                if (axisval > joy_commit_range)
-                {
-                    analog1 |= ANALOG_RIGHT;
-                }
-                else if (axisval < -joy_commit_range)
-                {
-                    analog1 |= ANALOG_LEFT;
-                }
-            }
-            else if (event.jaxis.axis == 1)
-            {// Y axis
-                analog1 &= ~(ANALOG_UP | ANALOG_DOWN);
-                if (axisval > joy_commit_range)
-                {
-                    analog1 |= ANALOG_DOWN;
-                }
-                else if (axisval < -joy_commit_range)
-                {
-                    analog1 |= ANALOG_UP;
-                }
-            }
-            break;
-        }
-        default:
-            // do nothing
-            break;
-        }
-    }
-    //SDL_PumpEvents();
+		{
+			int axisval = event.jaxis.value;
+			if (event.jaxis.axis == 0)
+			{// X axis
+				analog1 &= ~(ANALOG_LEFT | ANALOG_RIGHT);
+				if (axisval > joy_commit_range)
+				{
+					analog1 |= ANALOG_RIGHT;
+				}
+				else if (axisval < -joy_commit_range)
+				{
+					analog1 |= ANALOG_LEFT;
+				}
+			}
+			else if (event.jaxis.axis == 1)
+			{// Y axis
+				analog1 &= ~(ANALOG_UP | ANALOG_DOWN);
+				if (axisval > joy_commit_range)
+				{
+					analog1 |= ANALOG_DOWN;
+				}
+				else if (axisval < -joy_commit_range)
+				{
+					analog1 |= ANALOG_UP;
+				}
+			}
+			break;
+		}
+		default:
+			// do nothing
+			break;
+		}
+	}
+	//SDL_PumpEvents();
 }
 
 /**
  * Tests to see if a specified button is currently pressed.
  */
 static int DTestButton(ButtConfig *bc){
-    int x;
+	int x;
 
-    for(x = 0; x < bc->NumC; x++) {
-        if(bc->ButtType[x] == BUTTC_KEYBOARD) {
+	for(x = 0; x < bc->NumC; x++) {
+		if(bc->ButtType[x] == BUTTC_KEYBOARD) {
 			#if SDL_VERSION_ATLEAST(1,3,0)
 			if(g_keyState[SDL_GetScancodeFromKey((SDLKey)bc->ButtonNum[x])]) {
 			#else
-            if(g_keyState[bc->ButtonNum[x]]) {
+			if(g_keyState[bc->ButtonNum[x]]) {
 			#endif
-                return(1);
-            }
-        } else if(bc->ButtType[x] == BUTTC_JOYSTICK) {
-            if(DTestButtonJoy(bc)) {
-                return(1);
-            }
-        }
-    }
-    return(0);
+				return(1);
+			}
+		} else if(bc->ButtType[x] == BUTTC_JOYSTICK) {
+			if(DTestButtonJoy(bc)) {
+				return(1);
+			}
+		}
+	}
+	return(0);
 }
 
 #define MK(x)       {{BUTTC_KEYBOARD},{0},{MKK(x)},1}
@@ -768,12 +758,17 @@ static void UpdateGamepad(void) {
 	uint32 JS = 0;
 	int x;
 	int wg;
-	int merge;
-	int use_analog;
 
-	rapid ^= 1;
+	/* rapid-fire modes:
+	 *  0: on/off/on/off
+	 *  1: on/on/off/off
+	 *  2: on/off/off/off
+	 */
+	const bool autofire_patterns[3][4] = {
+		{0, 1, 0, 1}, {0, 0, 1, 1}, {0, 0, 0, 1}
+	};
 
-	g_config->getOption("SDL.MergeControls", &merge);
+	rapid = (rapid + 1) & 3;
 
 	// go through just one device for the little dingoo :)
 	for (wg = 0; wg < 1; wg++) {
@@ -782,19 +777,19 @@ static void UpdateGamepad(void) {
 			if (DTestButton(&GamePadConfig[wg][x])) {
 				JS |= (1 << x) << (wg << 3);
 				// Inject gamepad 1 input into gamepad 2 if enabled
-				if (merge) {
+				if (merge_controls) {
 					JS |= (1 << x) << ((wg + 1) << 3);
 				}
 			}
 		}
 
 		// rapid-fire a, rapid-fire b
-		if (rapid) {
+		if (autofire_patterns[autofire_pattern][rapid]) {
 			for (x = 0; x < 2; x++) {
 				if (DTestButton(&GamePadConfig[wg][8 + x])) {
 					JS |= (1 << x) << (wg << 3);
 					// Inject gamepad 1 input into gamepad 2 if enabled
-					if (merge) {
+					if (merge_controls) {
 						JS |= (1 << x) << ((wg + 1) << 3);
 					}
 				}
@@ -803,7 +798,6 @@ static void UpdateGamepad(void) {
 	}
 
 	// add analog direction
-	g_config->getOption("SDL.AnalogStick", &use_analog);
 	if (use_analog)
 	{
 		if (analog1 & ANALOG_UP) JS |= (1 << 4);
@@ -1203,6 +1197,7 @@ void UpdateInput(Config *config) {
 	char buf[64];
 	std::string device, prefix;
 
+	UpdateInputConfig(config);
 	for (unsigned int i = 0; i < 3; i++) {
 		snprintf(buf, 64, "SDL.Input.%d", i);
 		config->getOption(buf, &device);
@@ -1439,6 +1434,13 @@ void UpdateInput(Config *config) {
 	}
 #endif
 }
+
+void UpdateInputConfig(Config *config) {
+	config->getOption("SDL.MergeControls", &merge_controls);
+	config->getOption("SDL.AnalogStick", &use_analog);
+	config->getOption("SDL.AutoFirePattern", &autofire_pattern);
+}
+
 // Definitions from main.h:
 // GamePad defaults
 const char *GamePadNames[GAMEPAD_NUM_BUTTONS] = 
