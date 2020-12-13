@@ -25,8 +25,14 @@
   <component name="ProjectId" id="1lV64y2mfQQp6zp7qx2n8begkWL" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../pocketsnes/PocketSNES-RG350" />
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/drivers/dingux-sdl/gui" />
+      <recent name="$PROJECT_DIR$/bin" />
+    </key>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -51,6 +57,8 @@
       <option name="presentableId" value="Default" />
       <updated>1607669723440</updated>
       <workItem from="1607669725221" duration="7511000" />
+      <workItem from="1607694844920" duration="8128000" />
+      <workItem from="1607783751224" duration="598000" />
     </task>
     <servers />
   </component>
@@ -62,7 +70,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

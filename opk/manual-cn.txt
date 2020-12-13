@@ -1,10 +1,29 @@
-RG350M FC模拟器
+RG350M FCEUX 模拟器 V2.2.3-M2
 
-版本特色：
+V2.2.3-M2
+1. 修复了部分游戏双倍拉升显示不全的问题。
+2. 添加slect + start 退出游戏。
+3. 菜单的Load ROM现在改成Return Game
+
+V2.2.3-M1
 1. 支持震动。
 2. 支持双倍硬件拉升，横扫描滤镜，网格扫描滤镜。
 
-本版本基于司徒和soarqin修改的fcemux版本，感谢他们的付出。
-PS：滤镜功能，仅支持RG350M。
+快捷键：
+L2 菜单
+L1 快进
+R2 快速切换硬件拉升渲染方式
+slect + start 退出游戏
+L3 快速保存
+R3 快速读取
 
-https://github.com/littlehui/fceux-for-retrogame
+R1 + 上 显示帧率
+R1 + start 模拟器暂停
+R1 + select 截图
+
+版本号说明：
+V2.2.3  依赖的FCEUX主版本。
+MX 修改的版号。
+
+本版本基于司徒和soarqin修改的fceux版本和社区开源版本修改而成，感谢他们的付出。
+源码：https://github.com/littlehui/fceux-for-retrogame

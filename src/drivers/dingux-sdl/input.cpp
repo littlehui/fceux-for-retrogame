@@ -335,7 +335,7 @@ static void KeyboardCommands() {
         resetkey(DINGOO_X);
     }
     //select + start
-/*    if(ispressed(DINGOO_SELECT)) {
+    if(ispressed(DINGOO_SELECT)) {
         if(_keyonly(DINGOO_START)) {
             //quit game
             //while(gtk_events_pending())
@@ -352,7 +352,7 @@ static void KeyboardCommands() {
             SDL_Quit();
             exit(0);
         }
-    }*/
+    }
 	// R shift + combokeys
 	if(ispressed(DINGOO_R)) {
 

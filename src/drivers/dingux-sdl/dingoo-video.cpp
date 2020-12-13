@@ -402,7 +402,7 @@ void BlitScreen(uint8 *XBuf) {
 		}
 	} else if  (s_fullscreen == 5) {
         //TODO littlehui hw X2
-        pBuf += (s_srendline + 8) * 256;
+        pBuf += (s_srendline ) * 256;
         int16 pinc = (screen->w) >> 1;
         int16 append = 256;
         //int32 pinc = (screen->w - NWIDTH) >> 1;
@@ -432,6 +432,7 @@ void BlitScreen(uint8 *XBuf) {
 	  //TODO littlehui X2 crt
         //upscale_512x448_scanline((uint32 *)screen->pixels, (uint8 *)XBuf + 256 * 8);
         //pBuf += 256;
+        pBuf += (s_srendline * 256) + NOFFSET;
         int16 pinc = (screen->w) >> 1;
         //int16 append = 256;
         uint16_t gcolor = hexcolor_to_rgb565(0x000000);
@@ -461,7 +462,7 @@ void BlitScreen(uint8 *XBuf) {
 
         //TODO littlehui X2 grid full screen
         //upscale_512x448_scanline((uint32 *)screen->pixels, (uint8 *)XBuf + 256 * 8);
-        pBuf += 256;
+        pBuf += (s_srendline * 256) + NOFFSET;
         int16 pinc = (screen->w) >> 1;
         int16 append = 256;
         uint16_t gcolor = hexcolor_to_rgb565(0x000000);

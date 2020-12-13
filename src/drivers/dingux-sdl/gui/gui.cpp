@@ -187,37 +187,45 @@ void draw_shot_preview(unsigned short *dest, int x, int y) {
 }
 
 // Main menu commands
+#ifdef RG350M
 static int load_rom() {
-	const char *types[] = { ".nes", ".fds", ".zip", ".fcm", ".fm2", ".nsf",
-			NULL };
-	char filename[128], romname[128];
-	int error;
 
-	#ifdef WIN32
-	if (!RunFileBrowser("d:\\", filename, types)) {
-	#else
-	if (!RunFileBrowser(NULL, filename, types)) {
-	#endif
-		CloseGame();
-		SDL_Quit();
-		exit(-1);
-	}
-
-	//  TODO - Must close game here?
-	CloseGame();
-
-	// Is this a movie?
-	if (!(error = FCEUD_LoadMovie(filename, romname)))
-		error = LoadGame(filename);
-
-	if (error != 1) {
-		CloseGame();
-		SDL_Quit();
-		exit(-1);
-	}
-
-	return 1;
 }
+#else
+static int load_rom() {
+    const char *types[] = { ".nes", ".fds", ".zip", ".fcm", ".fm2", ".nsf",
+                            NULL };
+    char filename[128], romname[128];
+    int error;
+
+#ifdef WIN32
+    if (!RunFileBrowser("d:\\", filename, types)) {
+#else
+    if (!RunFileBrowser(NULL, filename, types)) {
+#endif
+        CloseGame();
+        SDL_Quit();
+        exit(-1);
+    }
+
+    //  TODO - Must close game here?
+    CloseGame();
+
+    // Is this a movie?
+    if (!(error = FCEUD_LoadMovie(filename, romname)))
+        error = LoadGame(filename);
+
+    if (error != 1) {
+        CloseGame();
+        SDL_Quit();
+        exit(-1);
+    }
+
+    return 1;
+}
+
+#endif
+
 
 static int reset_nes() {
 	FCEUI_ResetNES();
@@ -260,8 +268,14 @@ static int cmd_exit() {
 
 /* MAIN MENU */
 
-static MenuEntry main_menu[] = { 
-		{ "Load ROM", "Load new rom or movie", load_rom },
+static MenuEntry main_menu[] = {
+#ifdef RG350M
+        { "Return Game", "Return current game", load_rom },
+
+#else
+        { "Load ROM", "Load new rom or movie", load_rom },
+
+#endif
 		{ "Reset", "Reset NES", reset_nes },
 		{ "Flip disc", "Switch side or disc (FDS)", flip_disc },
 		{ "Save state", "Save current state", save_state },
@@ -281,11 +295,10 @@ int FCEUGUI_Init(FCEUGI *gi)
 	if(!gui_screen) printf("Error creating surface gui\n");
 
 	// Load bg image
-	g_bg = SDL_LoadBMP("./bg.bmp");
+	g_bg = SDL_LoadBMP("./bg1.bmp");
 
 	if (InitFont() < 0)
 		return -2;
-
 	if (gi) {
 		if (strlen(FileBase) > 28) {
 			strncpy(g_romname, FileBase, 24);
@@ -294,7 +307,6 @@ int FCEUGUI_Init(FCEUGI *gi)
 			strcpy(g_romname, FileBase);
 		g_romtype = gi->type;
 	}
-
 	return 0;
 }
 
