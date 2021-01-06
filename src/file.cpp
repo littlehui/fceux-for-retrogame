@@ -729,9 +729,15 @@ std::string FCEU_MakeFName(int type, int id1, const char *cd1)
 			break;
 		case FCEUMKF_CHEAT:
 			if(odirs[FCEUIOD_CHEATS])
-				sprintf(ret,"%s" PSS "%s.cht",odirs[FCEUIOD_CHEATS],FileBase);
+            {
+                sprintf(ret,"%s" PSS "%s.cht",odirs[FCEUIOD_CHEATS],FileBase);
+                fprintf(stderr, "odirs[FCEUIOD_CHEATS] ret %s\n", ret);
+            }
 			else
-				sprintf(ret,"%s" PSS "cheats" PSS "%s.cht",BaseDirectory.c_str(),FileBase);
+            {
+                sprintf(ret,"%s" PSS "cheats" PSS "%s.cht",BaseDirectory.c_str(),FileBase);
+                fprintf(stderr, "else odirs[FCEUIOD_CHEATS] ret %s\n", ret);
+            }
 			break;
 		case FCEUMKF_IPS:
 			strcpy(ret,FCEU_MakeIpsFilename(CurrentFileBase()).c_str());

@@ -6,8 +6,8 @@ CORE_OBJS = \
 	$(SRC)drawing.o $(SRC)fceu.o $(SRC)fds.o $(SRC)file.o $(SRC)conddebug.o \
 	$(SRC)filter.o $(SRC)ines.o $(SRC)input.o $(SRC)debug.o $(SRC)wave.o \
 	$(SRC)nsf.o $(SRC)palette.o $(SRC)ppu.o $(SRC)sound.o $(SRC)state.o $(SRC)unif.o \
- 	$(SRC)video.o $(SRC)vsuni.o $(SRC)x6502.o $(SRC)netplay.o $(SRC)emufile.o
-    
+ 	$(SRC)video.o $(SRC)vsuni.o $(SRC)x6502.o $(SRC)netplay.o $(SRC)emufile.o \
+    $(SRC)CJS_MD5.o
 BOARDS_OBJS = \
 	$(SRC)boards/01-222.o \
 	$(SRC)boards/3d-block.o \
@@ -250,7 +250,7 @@ LDFLAGS  += $(CC_OPTS)
 ifdef STATIC
 LDFLAGS  += -static-libgcc -static-libstdc++
 endif
-LIBS = $(SDL_LIBS) -lz -lm
+LIBS = $(SDL_LIBS) -lSDL_ttf -lz -lm
 
 TARGET = fceux
 

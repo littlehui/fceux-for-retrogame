@@ -306,10 +306,12 @@ static void KeyboardCommands() {
 		return;
 	}
     extern int g_slot; // import from gui.cpp
+    extern void save_preview();
     // L3 Save state
     if (_keyonly(DINGOO_L3)) {
         FCEUI_SelectState(g_slot, 0);
         FCEUI_SaveState(NULL);
+        save_preview();
         resetkey(DINGOO_B);
     }
 

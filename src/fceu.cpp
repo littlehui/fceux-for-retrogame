@@ -530,8 +530,8 @@ FCEUGI *FCEUI_LoadGameVirtual(const char *name, int OverwriteVidMode, bool silen
 			FCEUI_printf("NTSC mode set");
 		}
 
-		if (GameInfo->type != GIT_NSF && !disableAutoLSCheats)
-			FCEU_LoadGameCheats(0);
+	//if (GameInfo->type != GIT_NSF)
+	//	FCEU_LoadGameCheats(0);
 
 		if (AutoResumePlay)
 		{

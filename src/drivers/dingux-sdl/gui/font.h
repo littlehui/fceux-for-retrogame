@@ -23,5 +23,6 @@ int InitFont();
 void KillFont();
 int DrawChar(SDL_Surface *dest, uint8 c, int x, int y);
 void DrawText(SDL_Surface *dest, const char *textmsg, int x, int y);
+void DrawText2(SDL_Surface *dest, const char *textmsg, int x, int y);   //SDL_ttf
 
 #endif

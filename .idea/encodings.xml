@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/src/drivers/dingux-sdl/gui/file_browser.cpp" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/drivers/dingux-sdl/gui/font.cpp" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/drivers/dingux-sdl/gui/main_settings.cpp" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/drivers/dingux-sdl/gui/sound_settings.cpp" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/src/drivers/dingux-sdl/gui/video_settings.cpp" charset="GBK" />
+    <file url="file://$PROJECT_DIR$/test/settings_menu.cpp" charset="GBK" />
+  </component>
+</project>

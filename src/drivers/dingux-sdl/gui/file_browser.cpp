@@ -179,31 +179,31 @@ RESTART:
 			DrawChar(gui_screen, SP_SELECTOR, 81, 37);
 			DrawChar(gui_screen, SP_SELECTOR, 0, 225);
 			DrawChar(gui_screen, SP_SELECTOR, 81, 225);
-			DrawText(gui_screen, "B - Go Back", 235, 225);
+			DrawText2(gui_screen, "X - 退出", 235, 225);
 			DrawChar(gui_screen, SP_LOGO, 12, 9);
 
 			// Draw selector
 			DrawChar(gui_screen, SP_SELECTOR, 4, spy);
 			DrawChar(gui_screen, SP_SELECTOR, 81, spy);
 
-			DrawText(gui_screen, "ROM Browser", 8, 37);
+			DrawText2(gui_screen, "浏览Rom", 8, 37);
 
 			// Draw file list
 			for (i = offset_start, y = 72; i < offset_end; i++, y += 15) {
-				DrawText(gui_screen, list->GetName(i), 8, y);
+				DrawText2(gui_screen, list->GetName(i), 8, y);
 			}
 
 			// Draw info
 			if (info)
-				DrawText(gui_screen, info, 8, 225);
+				DrawText2(gui_screen, info, 8, 225);
 			else {
 				if (justsavedromdir == 1){
-					DrawText(gui_screen, "ROM dir successfully saved!", 8, 225);
+					DrawText2(gui_screen, "ROM 文件夹成功设置!", 8, 225);
 				} else {
 					if (list->GetSize(index) == -1)
-						DrawText(gui_screen, "SELECT - Save ROM dir", 8, 225);
+						DrawText2(gui_screen, "SELECT键 - 设置ROM 目录", 8, 225);
 					else
-						DrawText(gui_screen, "SELECT - Save ROM dir", 8, 225);
+						DrawText2(gui_screen, "SELECT键 - 设置ROM 目录", 8, 225);
 				}
 				justsavedromdir = 0;
 			}

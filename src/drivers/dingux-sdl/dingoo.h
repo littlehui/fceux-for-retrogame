@@ -20,5 +20,6 @@ extern int dendy;
 extern int pal_emulation;
 extern bool swapDuty;
 extern bool paldeemphswap;
+extern char *sdl_fullname;
 
 #endif

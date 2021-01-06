@@ -1,3 +1,5 @@
+#include "../../../cheat.h"
+#include "../../../fceu.h"
 // Externals
 extern Config *g_config;
 
@@ -5,82 +7,82 @@ extern Config *g_config;
 
 // Use PAL or NTSC rate
 static void pal_update(unsigned long key) {
-	int val;
+    int val;
 
-	if (key == DINGOO_RIGHT)
-		val = 1;
-	if (key == DINGOO_LEFT)
-		val = 0;
+    if (key == DINGOO_RIGHT)
+        val = 1;
+    if (key == DINGOO_LEFT)
+        val = 0;
 
-	g_config->setOption("SDL.PAL", val);
+    g_config->setOption("SDL.PAL", val);
 }
 
 // TODO - Open game genie screen
 static void gg_update(unsigned long key) {
-	int val;
+    int val;
 
-	if (key == DINGOO_RIGHT)
-		val = 1;
-	if (key == DINGOO_LEFT)
-		val = 0;
+    if (key == DINGOO_RIGHT)
+        val = 1;
+    if (key == DINGOO_LEFT)
+        val = 0;
 
-	g_config->setOption("SDL.GameGenie", val);
+    g_config->setOption("SDL.GameGenie", val);
 }
 
 static void sprite_limit_update(unsigned long key) {
-	int val;
+    int val;
 
-	if (key == DINGOO_RIGHT)
-		val = 1;
-	if (key == DINGOO_LEFT)
-		val = 0;
+    if (key == DINGOO_RIGHT)
+        val = 1;
+    if (key == DINGOO_LEFT)
+        val = 0;
 
-	g_config->setOption("SDL.DisableSpriteLimit", val);
+    g_config->setOption("SDL.DisableSpriteLimit", val);
 }
 
 static void throttle_update(unsigned long key) {
-	int val;
+    int val;
 
-	if (key == DINGOO_RIGHT)
-		val = 1;
-	if (key == DINGOO_LEFT)
-		val = 0;
+    if (key == DINGOO_RIGHT)
+        val = 1;
+    if (key == DINGOO_LEFT)
+        val = 0;
 
-	g_config->setOption("SDL.FPSThrottle", val);
+    g_config->setOption("SDL.FPSThrottle", val);
 }
 
 static void showfps_update(unsigned long key) {
-	int val;
+    int val;
 
-	if (key == DINGOO_RIGHT)
-		val = 1;
-	if (key == DINGOO_LEFT)
-		val = 0;
+    if (key == DINGOO_RIGHT)
+        val = 1;
+    if (key == DINGOO_LEFT)
+        val = 0;
 
-	g_config->setOption("SDL.ShowFPS", val);
+    g_config->setOption("SDL.ShowFPS", val);
 }
 
 static void show_mouse_update(unsigned long key) {
-	int val;
+    int val;
 
-	if (key == DINGOO_RIGHT)
-		val = 1;
-	if (key == DINGOO_LEFT)
-		val = 0;
+    if (key == DINGOO_RIGHT)
+        val = 1;
+    if (key == DINGOO_LEFT)
+        val = 0;
 
-	g_config->setOption("SDL.ShowMouseCursor", val);
+    g_config->setOption("SDL.ShowMouseCursor", val);
 }
 
 static void mouse_update(unsigned long key) {
-	int val;
-	g_config->getOption("SDL.MouseSpeed", &val);
+    int val;
+    g_config->getOption("SDL.MouseSpeed", &val);
 
-	if (key == DINGOO_RIGHT)
-		val = val < 8 ? val + 1 : 8;
-	if (key == DINGOO_LEFT)
-		val = val > 0 ? val - 1 : 0;
+    if (key == DINGOO_RIGHT)
+        val = val < 8 ? val + 1 : 8;
+    if (key == DINGOO_LEFT)
+        val = val > 0 ? val - 1 : 0;
 
-	g_config->setOption("SDL.MouseSpeed", val);
+    g_config->setOption("SDL.MouseSpeed", val);
 }
 
 // Frameskip
@@ -98,172 +100,172 @@ static void frameskip_update(unsigned long key) {
 
 // Custom palette
 static void custom_update(unsigned long key) {
-	const char *types[] = { ".pal", NULL };
-	char palname[128] = "";
+    const char *types[] = { ".pal", NULL };
+    char palname[128] = "";
 
-	#ifdef WIN32
-	if (!RunFileBrowser("d:\\", palname, types, "Choose nes palette (.pal)")) 
-	#else
-	if (!RunFileBrowser(NULL, palname, types, "Choose nes palette (.pal)")) 
-	#endif
-	{
-		CloseGame();
-		SDL_Quit();
-		exit(-1);
-	}
+#ifdef WIN32
+    if (!RunFileBrowser("d:\\", palname, types, "Choose nes palette (.pal)"))
+#else
+    if (!RunFileBrowser(NULL, palname, types, "Choose nes palette (.pal)"))
+#endif
+    {
+        CloseGame();
+        SDL_Quit();
+        exit(-1);
+    }
 
-	std::string cpalette = std::string(palname);
-	g_config->setOption("SDL.Palette", cpalette);
+    std::string cpalette = std::string(palname);
+    g_config->setOption("SDL.Palette", cpalette);
 }
 
 /* MAIN SETTINGS MENU */
 
 static SettingEntry
-	st_menu[] = {
-		{ "PAL", "Use PAL timing", "SDL.PAL", pal_update },
-		{ "Game Genie", "Emulate Game Genie", "SDL.GameGenie", gg_update },
-		{ "No sprite limit", "Disable sprite limit", "SDL.DisableSpriteLimit", sprite_limit_update },
-		{ "FPS Throttle", "Use fps throttling", "SDL.FPSThrottle", throttle_update },
-		{ "Show FPS", "Show frames per second", "SDL.ShowFPS", showfps_update },
-		{ "Show mouse", "Show/hide mouse cursor", "SDL.ShowMouseCursor", show_mouse_update },
-		{ "Mouse speed", "Mouse cursor speed", "SDL.MouseSpeed", mouse_update },
+        st_menu[] = {
+        { "PAL视频广播制式", "是否使用PAL视频模式", "SDL.PAL", pal_update },
+        { "游戏GC", "游戏GC码作弊器", "SDL.GameGenie", gg_update },
+        { "游戏精灵数量限制", "是否开启精灵数量限制", "SDL.DisableSpriteLimit", sprite_limit_update },
+        { "帧率限制", "是否开启帧率限制", "SDL.FPSThrottle", throttle_update },
+        { "显示帧率", "显示游戏帧率", "SDL.ShowFPS", showfps_update },
+        { "显示鼠标", "显示/隐藏 鼠标光标", "SDL.ShowMouseCursor", show_mouse_update },
+        { "鼠标速度", "鼠标当前速度", "SDL.MouseSpeed", mouse_update },
 #if 0 //def FRAMESKIP
-		{ "Frameskip", "Frameskip [0-9]", "SDL.Frameskip", frameskip_update},
+        { "Frameskip", "Frameskip [0-9]", "SDL.Frameskip", frameskip_update},
 #endif
-		{ "Custom palette", "Load custom palette", "SDL.Palette", custom_update },
+        { "Custom palette", "Load custom palette", "SDL.Palette", custom_update },
 };
 
 int RunMainSettings() {
-	static int index = 0;
-	static int spy = 72;
-	int done = 0, y, i;
+    static int index = 0;
+    static int spy = 72;
+    int done = 0, y, i;
 
-	int max_entries = 8;
+    int max_entries = 8;
 #if 0 //def FRAMESKIP
-	int menu_size = 9;
+    int menu_size = 9;
 #else
-	int menu_size = 8;
+    int menu_size = 8;
 #endif
 
-	static int offset_start = 0;
-	static int offset_end = menu_size > max_entries ? max_entries : menu_size;
+    static int offset_start = 0;
+    static int offset_end = menu_size > max_entries ? max_entries : menu_size;
 
-	char tmp[32];
-	int itmp;
+    char tmp[32];
+    int itmp;
 
-	g_dirty = 1;
-	while (!done) {
-		// Parse input
-		readkey();
-		if (parsekey(DINGOO_B))
-			done = 1;
-		if (parsekey(DINGOO_UP, 1)) {
-			if (index > 0) {
-				index--;
+    g_dirty = 1;
+    while (!done) {
+        // Parse input
+        readkey();
+        if (parsekey(DINGOO_B))
+            done = 1;
+        if (parsekey(DINGOO_UP, 1)) {
+            if (index > 0) {
+                index--;
 
-				if (index >= offset_start)
-					spy -= 15;
+                if (index >= offset_start)
+                    spy -= 15;
 
-				if ((offset_start > 0) && (index < offset_start)) {
-					offset_start--;
-					offset_end--;
-				}
-			} else {
-				index = menu_size-1;
-				offset_end = menu_size;
-				offset_start = menu_size <= max_entries ? 0 : offset_end - max_entries;
-				spy = 72 + 15*(index - offset_start);
-			}
-		}
+                if ((offset_start > 0) && (index < offset_start)) {
+                    offset_start--;
+                    offset_end--;
+                }
+            } else {
+                index = menu_size-1;
+                offset_end = menu_size;
+                offset_start = menu_size <= max_entries ? 0 : offset_end - max_entries;
+                spy = 72 + 15*(index - offset_start);
+            }
+        }
 
-		if (parsekey(DINGOO_DOWN, 1)) {
-			if (index < (menu_size - 1)) {
-				index++;
+        if (parsekey(DINGOO_DOWN, 1)) {
+            if (index < (menu_size - 1)) {
+                index++;
 
-				if (index < offset_end)
-					spy += 15;
+                if (index < offset_end)
+                    spy += 15;
 
-				if ((offset_end < menu_size) && (index >= offset_end)) {
-					offset_end++;
-					offset_start++;
-				}
-			} else {
-				index = 0;
-				offset_start = 0;
-				offset_end = menu_size <= max_entries ? menu_size : max_entries;
-				spy = 72;
-			}
-		}
+                if ((offset_end < menu_size) && (index >= offset_end)) {
+                    offset_end++;
+                    offset_start++;
+                }
+            } else {
+                index = 0;
+                offset_start = 0;
+                offset_end = menu_size <= max_entries ? menu_size : max_entries;
+                spy = 72;
+            }
+        }
 
-		if (parsekey(DINGOO_LEFT, 1) || parsekey(DINGOO_RIGHT, 1) || parsekey(
-				DINGOO_A))
-			st_menu[index].update(g_key);
+        if (parsekey(DINGOO_LEFT, 1) || parsekey(DINGOO_RIGHT, 1) || parsekey(
+                DINGOO_A))
+            st_menu[index].update(g_key);
 
-		// Draw stuff
-		if (g_dirty) {
-			draw_bg(g_bg);
-			
-			//Draw Top and Bottom Bars
-			DrawChar(gui_screen, SP_SELECTOR, 0, 37);
-			DrawChar(gui_screen, SP_SELECTOR, 81, 37);
-			DrawChar(gui_screen, SP_SELECTOR, 0, 225);
-			DrawChar(gui_screen, SP_SELECTOR, 81, 225);
-			DrawText(gui_screen, "B - Go Back", 235, 225);
-			DrawChar(gui_screen, SP_LOGO, 12, 9);
-			
-			// Draw selector
-			DrawChar(gui_screen, SP_SELECTOR, 56, spy);
-			DrawChar(gui_screen, SP_SELECTOR, 77, spy);
+        // Draw stuff
+        if (g_dirty) {
+            draw_bg(g_bg);
 
-			DrawText(gui_screen, "Main Settings", 8, 37);
+            //Draw Top and Bottom Bars
+            DrawChar(gui_screen, SP_SELECTOR, 0, 37);
+            DrawChar(gui_screen, SP_SELECTOR, 81, 37);
+            DrawChar(gui_screen, SP_SELECTOR, 0, 225);
+            DrawChar(gui_screen, SP_SELECTOR, 81, 225);
+            DrawText2(gui_screen, "B键 - 返回", 235, 225);
+            DrawChar(gui_screen, SP_LOGO, 12, 9);
 
-			// Draw menu
-			for (i = offset_start, y = 72; i < offset_end; i++, y += 15) {
-				DrawText(gui_screen, st_menu[i].name, 60, y);
+            // Draw selector
+            DrawChar(gui_screen, SP_SELECTOR, 56, spy);
+            DrawChar(gui_screen, SP_SELECTOR, 77, spy);
 
-				g_config->getOption(st_menu[i].option, &itmp);
+            DrawText2(gui_screen, "主要选项", 8, 37);
 
-				if (!strncmp(st_menu[i].name, "Custom palette", 6)) {
-					std::string palname;
-					g_config->getOption(st_menu[i].option, &palname);
+            // Draw menu
+            for (i = offset_start, y = 72; i < offset_end; i++, y += 15) {
+                DrawText2(gui_screen, st_menu[i].name, 60, y);
 
-					// Remove path of string
-					const int sz = static_cast<int> (palname.size());
-					const int path_sz = palname.rfind("/", palname.size());
+                g_config->getOption(st_menu[i].option, &itmp);
 
-					if (path_sz == sz)
-						strncpy(tmp, palname.c_str(), 32);
-					else
-						strncpy(tmp, palname.substr(path_sz + 1, sz - 1
-								- path_sz).c_str(), 32);
-				} else if (!strncmp(st_menu[i].name, "Mouse speed", 11)) {
-					sprintf(tmp, "%d", itmp);
-				} else
-					sprintf(tmp, "%s", itmp ? "on" : "off");
-				DrawText(gui_screen, tmp, 210, y);
-			}
+                if (!strncmp(st_menu[i].name, "Custom palette", 6)) {
+                    std::string palname;
+                    g_config->getOption(st_menu[i].option, &palname);
 
-			// Draw info
-			DrawText(gui_screen, st_menu[index].info, 8, 225);
+                    // Remove path of string
+                    const int sz = static_cast<int> (palname.size());
+                    const int path_sz = palname.rfind("/", palname.size());
 
-			// Draw offset marks
-			if (offset_start > 0)
-				DrawChar(gui_screen, SP_UPARROW, 274, 62);
-			if (offset_end < menu_size)
-				DrawChar(gui_screen, SP_DOWNARROW, 274, 203);
+                    if (path_sz == sz)
+                        strncpy(tmp, palname.c_str(), 32);
+                    else
+                        strncpy(tmp, palname.substr(path_sz + 1, sz - 1
+                                                                 - path_sz).c_str(), 32);
+                } else if (!strncmp(st_menu[i].name, "鼠标速度", 4)) {
+                    sprintf(tmp, "%d", itmp);
+                } else
+                    sprintf(tmp, "%s", itmp ? "on" : "off");
+                DrawText2(gui_screen, tmp, 210, y);
+            }
 
-			g_dirty = 0;
-		}
+            // Draw info
+            DrawText2(gui_screen, st_menu[index].info, 8, 225);
 
-		SDL_Delay(16);
+            // Draw offset marks
+            if (offset_start > 0)
+                DrawChar(gui_screen, SP_UPARROW, 274, 62);
+            if (offset_end < menu_size)
+                DrawChar(gui_screen, SP_DOWNARROW, 274, 203);
 
-		// Update real screen
-		FCEUGUI_Flip();
-	}
+            g_dirty = 0;
+        }
 
-	// Clear screen
-	dingoo_clear_video();
+        SDL_Delay(16);
 
-	g_dirty = 1;
-	return 0;
+        // Update real screen
+        FCEUGUI_Flip();
+    }
+
+    // Clear screen
+    dingoo_clear_video();
+
+    g_dirty = 1;
+    return 0;
 }

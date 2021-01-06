@@ -3,13 +3,20 @@
 #include <string.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
-
+#include <SDL/SDL_ttf.h>
 #include "../dingoo.h"
 #include "../dingoo-video.h"
 
 #include "../dface.h"
 
 #include "font.h"
+#ifdef SDL_TRIPLEBUF
+#  define DINGOO_MULTIBUF SDL_TRIPLEBUF
+#else
+#  define DINGOO_MULTIBUF SDL_DOUBLEBUF
+#endif
+TTF_Font *sdl_ttf_font =NULL;
+int sdl_high = 5;
 
 typedef struct _letter
 {
@@ -142,12 +149,25 @@ int InitFont()
 	int color_key = SDL_MapRGB(g_font->format, 255, 0, 255);
 	SDL_SetColorKey(g_font, SDL_SRCCOLORKEY, color_key);
 
+	if( sdl_ttf_font == NULL ){
+		TTF_Init();
+		sdl_ttf_font = TTF_OpenFont("/usr/share/gmenu2x/skins/Default/fonts/SourceHanSans-Regular-04.ttf", 13);
+		if(sdl_ttf_font == NULL){
+			return -1;
+		}
+		if(SDL_VideoModeOK(640, 480, 16, SDL_HWSURFACE | DINGOO_MULTIBUF) != 0)
+		{
+			sdl_high = 0;
+		}
+	}
 	return 0;
 }
 
 void KillFont()
 {
 	SDL_FreeSurface(g_font);
+	TTF_CloseFont( sdl_ttf_font );
+	TTF_Quit();
 }
 
 int DrawChar(SDL_Surface *dest, uint8 c, int x, int y)
@@ -185,3 +205,19 @@ void DrawText(SDL_Surface *dest, const char *textmsg, int x, int y)
 	}
 }
 
+void DrawText2(SDL_Surface *dest, const char *textmsg, int x, int y)
+{
+	if( textmsg == NULL ) return;
+	SDL_Color textColor={255, 255, 255};//设置颜色
+	SDL_Surface *message=NULL;
+	message=TTF_RenderUTF8_Blended(sdl_ttf_font,textmsg, textColor );//加在成中文
+	SDL_Rect dect;
+	dect.x=x;
+	dect.y=y-sdl_high;
+	dect.h=0;
+	dect.w=0;
+	if (message != NULL){
+		SDL_BlitSurface(message, NULL, dest, &dect);
+		SDL_FreeSurface(message);
+	}
+}

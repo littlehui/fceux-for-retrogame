@@ -1,4 +1,4 @@
-#include "../config.h"
+#include "../src/drivers/dingux-sdl/config.h"
 
 typedef struct _setting_entry {
 	const char *name;
@@ -7,10 +7,10 @@ typedef struct _setting_entry {
 	void (*update)(unsigned long);
 } SettingEntry;
 
-#include "main_settings.cpp"
-#include "video_settings.cpp"
-#include "sound_settings.cpp"
-#include "control_settings.cpp"
+#include "../src/drivers/dingux-sdl/gui/main_settings.cpp"
+#include "../src/drivers/dingux-sdl/gui/video_settings.cpp"
+#include "../src/drivers/dingux-sdl/gui/sound_settings.cpp"
+#include "../src/drivers/dingux-sdl/gui/control_settings.cpp"
 
 #define SETTINGS_MENUSIZE 5
 
@@ -37,11 +37,11 @@ static int cmd_config_save() {
 
 static MenuEntry
 	settings_menu[] = {
-		{ "Main Setup", "Change fceux main config", cmd_main_settings },
-		{ "Video Setup", "Change video config", cmd_video_settings },
-		{ "Sound Setup", "Change sound config", cmd_sound_settings },
-		{ "Control Setup", "Change control config", cmd_control_settings },
-		{ "Save config as default",	"Override default config", cmd_config_save } };
+        { "主要选项", "更改主要选项", cmd_main_settings },
+        { "视频设置", "更改视频设置", cmd_video_settings },
+        { "音频设置", "更改音频设置", cmd_sound_settings },
+        { "控制设置", "更改控制设置", cmd_control_settings },
+        { "保存当前设置为默认","覆盖模拟器默认设置", cmd_config_save }};
 
 int RunSettingsMenu() {
 	static int index = 0;
@@ -83,28 +83,28 @@ int RunSettingsMenu() {
 		// Draw stuff
 		if (g_dirty) {
 			draw_bg(g_bg);
-			
+
 			//Draw Top and Bottom Bars
 			DrawChar(gui_screen, SP_SELECTOR, 0, 37);
 			DrawChar(gui_screen, SP_SELECTOR, 81, 37);
 			DrawChar(gui_screen, SP_SELECTOR, 0, 225);
 			DrawChar(gui_screen, SP_SELECTOR, 81, 225);
-			DrawText(gui_screen, "B - Go Back", 235, 225);
-			DrawChar(gui_screen, SP_LOGO, 12, 9);
-			
+            DrawText2(gui_screen, "B键 - 返回", 235, 225);
+            DrawChar(gui_screen, SP_LOGO, 12, 9);
+
 			// Draw selector
 			DrawChar(gui_screen, SP_SELECTOR, 56, spy);
 			DrawChar(gui_screen, SP_SELECTOR, 77, spy);
 
-			DrawText(gui_screen, "Settings", 8, 37);
+            DrawText2(gui_screen, "设置", 8, 37);
 
 			// Draw menu
 			for (i = 0, y = 72; i < SETTINGS_MENUSIZE; i++, y += 16) {
-				DrawText(gui_screen, settings_menu[i].name, 60, y);
+				DrawText2(gui_screen, settings_menu[i].name, 60, y);
 			}
 
 			// Draw info
-			DrawText(gui_screen, settings_menu[index].info, 8, 225);
+			DrawText2(gui_screen, settings_menu[index].info, 8, 225);
 
 			g_dirty = 0;
 		}

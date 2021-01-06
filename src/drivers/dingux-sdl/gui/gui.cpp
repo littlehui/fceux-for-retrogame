@@ -13,6 +13,7 @@
 
 // ...
 extern SDL_Surface* screen;
+char *sdl_fullname=NULL;
 extern int RunFileBrowser(char *source, char *romname, const char *types[],
 		const char *info = NULL);
 
@@ -107,7 +108,7 @@ int update_time()
 // Include additional files
 #include "file_browser.cpp"
 #include "settings_menu.cpp"
-
+#include "cheat_settings.cpp" //cjs
 /* MENU COMMANDS */
 
 // Load preview from save state
@@ -189,7 +190,7 @@ void draw_shot_preview(unsigned short *dest, int x, int y) {
 // Main menu commands
 #ifdef RG350M
 static int load_rom() {
-
+	cheat_menu_yes = 0;
 }
 #else
 static int load_rom() {
@@ -221,6 +222,7 @@ static int load_rom() {
         exit(-1);
     }
 
+	cheat_menu_yes = 0;
     return 1;
 }
 
@@ -266,23 +268,29 @@ static int cmd_exit() {
 	return 1;
 }
 
+static int cmd_cheat_settings() {
+	return RunCheatSettings();
+}
 /* MAIN MENU */
-
+//int menu_size = 9;
+int menu_size = 7;
 static MenuEntry main_menu[] = {
-#ifdef RG350M
-        { "Return Game", "Return current game", load_rom },
-
+/*#ifdef RG350M
+        { "返回游戏", "返回游戏", load_rom },
 #else
-        { "Load ROM", "Load new rom or movie", load_rom },
+        { "选择Rom", "选择Rom或者动画", load_rom },
+#endif*/
+/*
+        { "更换碟片", "更换游戏碟片", flip_disc },
+*/
+        { "保存进度", "保存游戏当前进度", save_state },
+        { "加载进度", "加载游戏保存进度", load_state },
+        { "游戏截图", "保存游戏当前屏幕", save_screenshot },
+        { "选金手指", "设置金手指", cmd_cheat_settings },
+        { "更多设置", "更改当前游戏设置", cmd_settings_menu },
+        { "重置游戏", "重置游戏", reset_nes },
+        { "退出游戏", "退出模拟器", cmd_exit }
 
-#endif
-		{ "Reset", "Reset NES", reset_nes },
-		{ "Flip disc", "Switch side or disc (FDS)", flip_disc },
-		{ "Save state", "Save current state", save_state },
-		{ "Load state", "Load emulation state", load_state },
-		{ "Screenshot", "Save current frame shot", save_screenshot },
-		{ "Settings", "Change current settings", cmd_settings_menu },
-		{ "Exit", "Exit emulator", cmd_exit } 
 };
 
 extern char FileBase[2048];
@@ -354,13 +362,13 @@ void FCEUGUI_Run() {
 				index--;
 				spy -= 16;
 			} else {
-				index = 7;
+				index = menu_size - 1; //初始7
 				spy = 72 + 16*index;
 			}
 		}
 
 		if (parsekey(DINGOO_DOWN, 0)) {
-			if (index < 7) {
+			if (index < menu_size - 1) { //初始7
 				index++;
 				spy += 16;
 			} else {
@@ -371,10 +379,10 @@ void FCEUGUI_Run() {
 
 		if (parsekey(DINGOO_A)) {
 			done = main_menu[index].command();
-			if(index == 3) load_preview();
+			if(index == 0) load_preview();
 		}
 
-		if (index == 3 || index == 4) {
+		if (index == 0 || index == 1) {
 			if (parsekey(DINGOO_RIGHT, 0)) {
 				if (g_slot < 9) {
 					g_slot++;
@@ -402,14 +410,14 @@ void FCEUGUI_Run() {
 			DrawChar(gui_screen, SP_SELECTOR, 81, 37);
 			DrawChar(gui_screen, SP_SELECTOR, 0, 225);
 			DrawChar(gui_screen, SP_SELECTOR, 81, 225);
-			DrawText(gui_screen, "B - Go Back", 235, 225);
+			DrawText2(gui_screen, "B键 - 返回", 235, 225);
 			DrawChar(gui_screen, SP_LOGO, 12, 9);
 			
 			// Draw selector
 			DrawChar(gui_screen, SP_SELECTOR, 56, spy);
 			DrawChar(gui_screen, SP_SELECTOR, 77, spy);
 
-			if (index == 3 || index == 4) {
+			if (index == 0 || index == 1) {
 				// Draw state preview
 				DrawChar(gui_screen, SP_PREVIEWBLOCK, 184, 73);
 				draw_preview((unsigned short *)gui_screen->pixels, 185, 100);
@@ -417,27 +425,33 @@ void FCEUGUI_Run() {
 					DrawChar(gui_screen, SP_NOPREVIEW, 207, 135);
 			}
 
-			if (index == 5) {
+			if (index == 2) {
 				DrawChar(gui_screen, SP_PREVIEWBLOCK, 184, 73);
 				draw_shot_preview((unsigned short *)gui_screen->pixels, 185, 100);
 			}
 
-			DrawText(gui_screen, "Now Playing:", 8, 37);
-			DrawText(gui_screen, g_romname, 96, 37);
+			DrawText2(gui_screen, "当前游戏:", 9, 37);
+			DrawText2(gui_screen, g_romname, 96, 37);
 
 			// Draw menu
-			for (i = 0, y = 72; i < 8; i++, y += 16) {
-				DrawText(gui_screen, main_menu[i].name, 60, y);
+			for (i = 0, y = 72; i < menu_size; i++, y += 16) {  //初始8
+			    //change disk visible,
+	/*		    if (i == 2)
+			    {
+			        y-=16;
+			        continue;
+			    }*/
+				DrawText2(gui_screen, main_menu[i].name, 60, y);
 			}
 
 			// Draw info
-			DrawText(gui_screen, main_menu[index].info, 8, 225);
+			DrawText2(gui_screen, main_menu[index].info, menu_size, 225); //初始8
 
 			// If save/load state render slot preview and number
-			if (index == 3 || index == 4) {
+			if (index == 0 || index == 1) {
 				char tmp[32];
-				sprintf(tmp, "Slot %d", g_slot);
-				DrawText(gui_screen, tmp, 212, 80);
+				sprintf(tmp, "存档 %d", g_slot);
+				DrawText2(gui_screen, tmp, 212, 80);
 
 				if (g_slot > 0)
 					DrawChar(gui_screen, SP_LEFTARROW, 197, 83);
@@ -446,8 +460,8 @@ void FCEUGUI_Run() {
 			}
 
 			// If screenshot render current frame preview
-			if (index == 5) {
-				DrawText(gui_screen, "Preview", 207, 80);
+			if (index == 2) {
+				DrawText2(gui_screen, "预览图", 207, 80);
 			}
 
 			g_dirty = 0;

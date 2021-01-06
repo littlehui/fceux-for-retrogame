@@ -22,15 +22,20 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectId" id="1lV64y2mfQQp6zp7qx2n8begkWL" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../pocketsnes/PocketSNES-RG350" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/drivers/dingux-sdl/gui" />
+    <property name="settings.editor.selected.configurable" value="File.Encoding" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/test" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/drivers/dingux-sdl/gui" />
+      <recent name="$PROJECT_DIR$/test" />
       <recent name="$PROJECT_DIR$/bin" />
     </key>
   </component>
@@ -59,6 +64,8 @@
       <workItem from="1607669725221" duration="7511000" />
       <workItem from="1607694844920" duration="8128000" />
       <workItem from="1607783751224" duration="598000" />
+      <workItem from="1609773652486" duration="277000" />
+      <workItem from="1609775228648" duration="16275000" />
     </task>
     <servers />
   </component>

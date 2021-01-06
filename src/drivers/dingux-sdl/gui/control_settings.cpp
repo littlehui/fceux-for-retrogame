@@ -68,7 +68,7 @@ static void setAnalogStick(unsigned long key)
 
 static void setAutoFirePattern(unsigned long key)
 {
-	int val;
+	int val = 0;
 
 	if (key == DINGOO_RIGHT && val < 2)
 		++val;
@@ -93,14 +93,14 @@ static void resetMappings(unsigned long key)
 
 static SettingEntry cm_menu[] = 
 {
-	{"Button B", "Map input for B", "SDL.Input.GamePad.0B", setB},
-	{"Button A", "Map input for A", "SDL.Input.GamePad.0A", setA},
-	{"Turbo B", "Map input for Turbo B", "SDL.Input.GamePad.0TurboB", setTurboB},
-	{"Turbo A", "Map input for Turbo A", "SDL.Input.GamePad.0TurboA", setTurboA},
-	{"Merge P1/P2", "Control both players at once", "SDL.MergeControls", MergeControls},
-	{"Analog Stick", "Analog Stick for Directions", "SDL.AnalogStick", setAnalogStick},
-	{"Auto-fire Pattern", "Set auto-fire pattern", "SDL.AutoFirePattern", setAutoFirePattern},
-	{"Reset defaults", "Reset default control mappings", "", resetMappings},
+        {"按键 B", "按键 B 映射", "SDL.Input.GamePad.0B", setB},
+        {"按键 A", "按键 A 映射", "SDL.Input.GamePad.0A", setA},
+        {"连发 B", "连发 B 映射", "SDL.Input.GamePad.0TurboB", setTurboB},
+        {"连发 A", "连发 A 映射", "SDL.Input.GamePad.0TurboA", setTurboA},
+        {"合并 P1/P2", "双玩家控制合并，好像没什么用", "SDL.MergeControls", MergeControls},
+        {"模拟摇杆", "是否开启左模拟摇杆", "SDL.AnalogStick", setAnalogStick},
+        {"连发频率", "连发频率", "SDL.AutoFirePattern", setAutoFirePattern},
+        {"重置按键", "重置默认按键配置", "", resetMappings},
 };
 
 int RunControlSettings()
@@ -204,16 +204,16 @@ int RunControlSettings()
 			DrawChar(gui_screen, SP_SELECTOR, 81, 37);
 			DrawChar(gui_screen, SP_SELECTOR, 0, 225);
 			DrawChar(gui_screen, SP_SELECTOR, 81, 225);
-			DrawText(gui_screen, "B - Go Back", 235, 225);
-			DrawChar(gui_screen, SP_LOGO, 12, 9);
+            DrawText2(gui_screen, "B键 - 返回", 235, 225);
+            DrawChar(gui_screen, SP_LOGO, 12, 9);
 			
 			// Draw selector
 			DrawChar(gui_screen, SP_SELECTOR, 56, spy);
 			DrawChar(gui_screen, SP_SELECTOR, 77, spy);
 			if (err == 0) {
-				DrawText(gui_screen, "!!!Error - Duplicate Key Mapping!!! ", 8, 37);
+                DrawText2(gui_screen, "!!!错误 - 按键映射重复!!! ", 8, 37);
 			} else {
-				DrawText(gui_screen, "Control Settings - Press select to edit", 8, 37);
+                DrawText2(gui_screen, "设置操作按键 - select键 编辑", 8, 37);
 			}
 
 			// Draw menu
@@ -222,7 +222,7 @@ int RunControlSettings()
 				char cBtn[32];
 				int mergeValue;
 
-				DrawText(gui_screen, cm_menu[i].name, 60, y);
+				DrawText2(gui_screen, cm_menu[i].name, 60, y);
 				
 				g_config->getOption(cm_menu[i].option, &iBtnVal);
 				
@@ -259,12 +259,12 @@ int RunControlSettings()
 					sprintf(cBtn, "%s", "<empty>");
 
 
-				DrawText(gui_screen, cBtn, 210, y);
+				DrawText2(gui_screen, cBtn, 210, y);
 				
 			}
 
 			// Draw info
-			DrawText(gui_screen, cm_menu[index].info, 8, 225);
+			DrawText2(gui_screen, cm_menu[index].info, 8, 225);
 
 			g_dirty = 0;
 		}

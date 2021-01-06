@@ -9,5 +9,4 @@ void FCEUGUI_Run();
 int InitFileBrowser();
 void KillFileBrowser();
 int RunFileBrowser(char *source, char *romname, const char *types[], const char *info = NULL);
-
 #endif

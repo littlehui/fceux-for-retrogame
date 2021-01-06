@@ -140,7 +140,7 @@ InitConfig()
 	config->addOption("soundbufsize", "SDL.Sound.BufSize", 128);
 	config->addOption("lowpass", "SDL.Sound.LowPass", 0);
     
-	config->addOption('g', "gamegenie", "SDL.GameGenie", 0);
+	config->addOption('g', "gamegenie", "SDL.GameGenie", 1);//cjs д╛хо0
 	config->addOption("pal", "SDL.PAL", 0);
 	config->addOption("frameskip", "SDL.Frameskip", 0);
 	config->addOption("clipsides", "SDL.ClipSides", 0);
