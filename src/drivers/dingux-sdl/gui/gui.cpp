@@ -251,7 +251,7 @@ static int save_state() {
 
 static int load_state() {
 	FCEUI_LoadState(NULL);
-	return 0;
+	return 1;
 }
 
 static int save_screenshot() {
@@ -287,7 +287,7 @@ static MenuEntry main_menu[] = {
         { "加载进度", "加载游戏保存进度", load_state },
         { "游戏截图", "保存游戏当前屏幕", save_screenshot },
         { "选金手指", "设置金手指", cmd_cheat_settings },
-        { "更多设置", "更改当前游戏设置", cmd_settings_menu },
+        { "高级设置", "更改当前游戏设置", cmd_settings_menu },
         { "重置游戏", "重置游戏", reset_nes },
         { "退出游戏", "退出模拟器", cmd_exit }
 
@@ -420,8 +420,8 @@ void FCEUGUI_Run() {
 			if (index == 0 || index == 1) {
 				// Draw state preview
 				DrawChar(gui_screen, SP_PREVIEWBLOCK, 184, 73);
-				draw_preview((unsigned short *)gui_screen->pixels, 185, 100);
-				if (!g_ispreview)
+                draw_preview((unsigned short *)gui_screen->pixels, 185, 100);
+                if (!g_ispreview)
 					DrawChar(gui_screen, SP_NOPREVIEW, 207, 135);
 			}
 

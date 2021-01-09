@@ -33,6 +33,7 @@ static int cmd_control_settings() {
 static int cmd_config_save() {
 	extern Config *g_config;
 	g_config->save();
+	return 2;
 }
 
 static MenuEntry
@@ -41,7 +42,7 @@ static MenuEntry
         { "视频设置", "更改视频设置", cmd_video_settings },
         { "音频设置", "更改音频设置", cmd_sound_settings },
         { "控制设置", "更改控制设置", cmd_control_settings },
-        { "保存当前设置为默认","覆盖模拟器默认设置", cmd_config_save }};
+        { "保存设置-返回游戏","覆盖模拟器默认设置", cmd_config_save }};
 
 int RunSettingsMenu() {
 	static int index = 0;
@@ -119,4 +120,10 @@ int RunSettingsMenu() {
 	dingoo_clear_video();
 
 	g_dirty = 1;
+	if (done == 2) {
+	    done == 0;
+        return 1;
+	} else {
+	    return 0;
+	}
 }
